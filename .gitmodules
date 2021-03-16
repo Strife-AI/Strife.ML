@@ -1,0 +1,6 @@
+[submodule "tinycc"]
+	path = tinycc
+	url = git@github.com:TinyCC/tinycc.git
+[submodule "Strife.Common"]
+	path = Strife.Common
+	url = git@github.com:Strife-AI/Strife.Common.git
