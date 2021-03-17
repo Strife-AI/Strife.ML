@@ -10,7 +10,8 @@ add_library(Strife.ML STATIC
         TorchApi.cpp
         TorchApiInternal.hpp
         Scripting/ScriptCompiler.cpp
-        Scripting/Scripting.cpp)
+        Scripting/Scripting.cpp
+        ScriptNetwork.cpp)
 	
 find_package(Microsoft.GSL CONFIG REQUIRED)
 	

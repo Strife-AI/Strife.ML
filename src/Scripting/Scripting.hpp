@@ -8,6 +8,8 @@
 #include <thread>
 #include <functional>
 
+void StrifeLog(const char* format, ...);
+
 template <typename T>
 constexpr auto type_name() noexcept {
     std::string_view name, prefix, suffix;
@@ -50,7 +52,7 @@ typename std::result_of<Fn(Args...)>::type wrapper(Args... args)
     {
         // Prevent exceptions from going through the C code, which would crash
         // Instead, do a longjmp to abort the script
-        Log("Aborting call to %s because got instance of %s: %s\n", ScriptCallableName<Fn, fn>,  typeid(e).name(), e.what());
+        StrifeLog("Aborting call to %s because got instance of %s: %s\n", ScriptCallableName<Fn, fn>,  typeid(e).name(), e.what());
         auto threadState = GetThreadState(std::this_thread::get_id());
         longjmp(threadState->errorHandler, 1);
     }
@@ -76,8 +78,6 @@ struct ScriptCallableInfo
 private:
     void Initialize(const std::string_view& functionPointerPrototype);
 };
-
-void StrifeLog(const char* format, ...);
 
 template<typename TFunc>
 class ScriptFunction;
@@ -123,8 +123,12 @@ private:
     friend class Script;
 };
 
+class Script;
+
 struct ScriptSource
 {
+    std::shared_ptr<Script> CreateScript();
+
     std::string source;
     int currentVersion = 0;
 };

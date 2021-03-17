@@ -58,7 +58,6 @@ static const char* unsafeSymbols[] =
     "longjmp",
     "setjmp",
     "abort"
-    // TODO "include"
 };
 
 static bool HasUnsafeSymbol(const std::string& source)
@@ -143,4 +142,9 @@ thread_local ThreadState threadState;
 ThreadState* GetThreadState(std::thread::id threadId)
 {
     return &threadState;
+}
+
+std::shared_ptr<Script> ScriptSource::CreateScript()
+{
+    return std::make_shared<Script>(this);
 }
