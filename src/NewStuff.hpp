@@ -713,7 +713,7 @@ namespace StrifeML
     {
         static void Serialize(T& value, ObjectSerializer& serializer)
         {
-            serializer.template AddBytes(reinterpret_cast<unsigned char*>(&value), sizeof(value));
+            serializer.AddBytes(reinterpret_cast<unsigned char*>(&value), sizeof(value));
         }
     };
 }
