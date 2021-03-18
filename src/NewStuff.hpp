@@ -85,6 +85,7 @@ namespace StrifeML
 
     template<> inline const char* ObjectSerializerName<float>() { return "float"; }
     template<> inline const char* ObjectSerializerName<int>() { return "int"; }
+    template<> inline const char* ObjectSerializerName<bool>() { return "bool"; }
 
     struct ObjectSerializerProperty
     {
