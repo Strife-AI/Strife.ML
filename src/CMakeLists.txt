@@ -18,5 +18,6 @@ find_package(Microsoft.GSL CONFIG REQUIRED)
 find_package(torch REQUIRED)
 target_link_libraries(Strife.ML PUBLIC torch Microsoft.GSL::GSL Strife.Common tinycc/libtcc.a)
 target_include_directories(Strife.ML PUBLIC ../tinycc)
+target_include_directories(Strife.ML PUBLIC .)
 
 set_property(TARGET Strife.ML PROPERTY CXX_STANDARD 17)
