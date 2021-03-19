@@ -22,6 +22,7 @@ find_package(torch REQUIRED)
 
 if (MSVC)
     target_link_directories(Strife.ML PUBLIC ../tinycc/win32)
+    target_link_libraries(Strife.ML PUBLIC libtcc)
 
     add_custom_command(TARGET Strife.ML
         POST_BUILD
@@ -30,8 +31,9 @@ if (MSVC)
         $<TARGET_FILE_DIR:Strife.ML>)
 else()
     target_link_directories(Strife.ML PUBLIC ../tinycc)
+    target_link_libraries(Strife.ML PUBLIC libtcc.a)
 endif()
 
-target_link_libraries(Strife.ML PUBLIC torch Microsoft.GSL::GSL Strife.Common libtcc)
+target_link_libraries(Strife.ML PUBLIC torch Microsoft.GSL::GSL Strife.Common)
 target_include_directories(Strife.ML PUBLIC ../tinycc)
 target_include_directories(Strife.ML PUBLIC .)
