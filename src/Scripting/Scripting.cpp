@@ -1,14 +1,32 @@
 #include <vector>
 #include "libtcc.h"
 #include <unordered_map>
+#include <cstdarg>
 
 #include "Scripting.hpp"
 #include "Thread/SpinLock.hpp"
 #include "ScriptCompiler.hpp"
 
+static void (*strifeLogFunction)(const char* message);
+
+namespace StrifeML
+{
+    void SetLogFunction(void (*logFunction)(const char* message))
+    {
+        strifeLogFunction = logFunction;
+    }
+}
+
 void StrifeLog(const char* format, ...)
 {
-    // TODO
+    if (strifeLogFunction == nullptr) return;
+
+    char buf[4096];
+    va_list args;
+    va_start(args, format);
+
+    vsnprintf(buf, sizeof(buf), format, args);
+    strifeLogFunction(buf);
 }
 
 static std::vector<ScriptCallableInfo*>& GetAllScriptCallableFunctions()
@@ -42,12 +60,16 @@ void ScriptCallableInfo::Initialize(const std::string_view& functionPointerProto
 void* Script::GetSymbolOrNull(const char* name)
 {
     if (_tccState == nullptr) return nullptr;
-    return tcc_get_symbol(_tccState, name);
+    auto result = tcc_get_symbol(_tccState, name);
+
+    StrifeLog("For function %s got %p\n", name, result);
+
+    return result;
 }
 
 static void LogCompilerError(void* scriptName, const char* message)
 {
-    printf("Failed to compile %s: %s\n", (const char*)scriptName, message);
+    StrifeLog("Failed to compile %s: %s\n", (const char*)scriptName, message);
 }
 
 static const char* unsafeSymbols[] =
@@ -66,7 +88,7 @@ static bool HasUnsafeSymbol(const std::string& source)
     {
         if (source.find(symbol) != std::string::npos)
         {
-            printf("Found unsafe symbol: %s\n", symbol);
+            StrifeLog("Found unsafe symbol: %s\n", symbol);
             return true;
         }
     }
@@ -92,13 +114,14 @@ bool Script::Compile(const char* name, const char* source)
 
     tcc_set_error_func(_tccState, (void*)name, LogCompilerError);
     tcc_set_output_type(_tccState, TCC_OUTPUT_MEMORY);
+    tcc_add_include_path(_tccState, "tcc/include");
 
     for(auto& callable : GetAllScriptCallableFunctions())
     {
         tcc_add_symbol(_tccState, callable->name, callable->functionPointer);
     }
 
-    //tcc_set_options(_tccState, "-b");
+    tcc_set_options(_tccState, "-Btcc/");
 
     if (tcc_compile_string(_tccState, source) > 0
         || HasUnsafeSymbol(source))
@@ -109,7 +132,10 @@ bool Script::Compile(const char* name, const char* source)
         return false;
     }
 
-    tcc_relocate(_tccState, TCC_RELOCATE_AUTO);
+    if (tcc_relocate(_tccState, TCC_RELOCATE_AUTO) != 0)
+    {
+        StrifeLog("Failed to relocate tcc code: %s\n");
+    }
 
     return true;
 }

@@ -10,6 +10,11 @@
 
 void StrifeLog(const char* format, ...);
 
+namespace StrifeML
+{
+    void SetLogFunction(void (*logFunction)(const char* message));
+}
+
 template <typename T>
 constexpr auto type_name() noexcept {
     std::string_view name, prefix, suffix;
@@ -112,6 +117,7 @@ public:
         else
         {
             StrifeLog("Call to %s failed\n", _name);
+            fflush(stdout);
             throw std::bad_function_call();
         }
     }
