@@ -112,18 +112,17 @@ bool Script::Compile(const char* name, const char* source)
         return false;
     }
 
+    tcc_set_options(_tccState, "-Btcc");
     tcc_set_error_func(_tccState, (void*)name, LogCompilerError);
     tcc_set_output_type(_tccState, TCC_OUTPUT_MEMORY);
-    tcc_add_include_path(_tccState, "tcc/include");
+    tcc_add_sysinclude_path(_tccState, "tcc/include");
 
     for(auto& callable : GetAllScriptCallableFunctions())
     {
         tcc_add_symbol(_tccState, callable->name, callable->functionPointer);
     }
 
-    tcc_set_options(_tccState, "-Btcc/");
-
-    if (tcc_compile_string(_tccState, source) > 0
+    if (tcc_compile_string(_tccState, source) != 0
         || HasUnsafeSymbol(source))
     {
         StrifeLog("Compilation error!\n");
