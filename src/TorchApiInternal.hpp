@@ -1,5 +1,7 @@
 #pragma once
 
+#include <variant>
+
 #include "torch/torch.h"
 #include "NewStuff.hpp"
 
@@ -121,6 +123,31 @@ namespace Scripting
         StrifeML::ObjectSerializer serializer;
     };
 
+    struct ObjectImpl;
+    struct ValueImpl;
+
+    struct ValueImpl
+    {
+        float& GetFloat()
+        {
+            if (auto val = std::get_if<float>(&value)) return *val;
+            else throw StrifeML::StrifeException("Value is not a float");
+        }
+
+        std::variant<
+            int32_t,
+            int64_t,
+            float,
+            double,
+            std::vector<float>,
+            std::unique_ptr<ObjectImpl>> value;
+    };
+
+    struct ObjectImpl
+    {
+        std::unordered_map<std::string, ValueImpl> properties;
+    };
+
     struct NetworkState
     {
         NetworkState(StrifeML::INeuralNetwork* network)
@@ -136,10 +163,37 @@ namespace Scripting
         Grid<SerializedInput> input;
     };
 
+    struct ValueStack
+    {
+        int Push()
+        {
+            values.emplace_back();
+            return values.size() - 1;
+        }
+
+        void Pop()
+        {
+            values.pop_back();
+        }
+
+        ValueImpl& GetById(int id)
+        {
+            if (id < 0 || id >= values.size())
+            {
+                throw StrifeML::StrifeException("Invalid value id: %d", id);
+            }
+
+            return values[id];
+        }
+
+        std::vector<ValueImpl> values;
+    };
+
     struct ScriptingState
     {
         NetworkState* network = nullptr;
         HandleMap<Tensor, TensorImpl> tensors;
+        ValueStack valueStack;
     };
 
     ScriptingState* GetScriptingState();

@@ -26,8 +26,7 @@ else()
         BUILD_COMMAND ${MAKE}
         INSTALL_COMMAND mkdir -p ${CMAKE_BINARY_DIR}/tcc
             && cp ${CMAKE_CURRENT_SOURCE_DIR}/tinycc/libtcc1.a ${CMAKE_BINARY_DIR}/tcc
-            && cp -r ${CMAKE_CURRENT_SOURCE_DIR}/tinycc/include ${CMAKE_BINARY_DIR}/tcc
-            && cp ${CMAKE_CURRENT_SOURCE_DIR}/src/TorchApi.h ${CMAKE_BINARY_DIR}/tcc/include)
+            && cp -r ${CMAKE_CURRENT_SOURCE_DIR}/tinycc/include ${CMAKE_BINARY_DIR}/tcc)
 endif()
 
 

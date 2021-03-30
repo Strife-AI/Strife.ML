@@ -112,8 +112,8 @@ bool Script::Compile(const char* name, const char* source)
         return false;
     }
 
-    tcc_set_options(_tccState, "-Btcc");
     tcc_set_error_func(_tccState, (void*)name, LogCompilerError);
+    tcc_set_options(_tccState, "-Btcc");
     tcc_set_output_type(_tccState, TCC_OUTPUT_MEMORY);
     tcc_add_sysinclude_path(_tccState, "tcc/include");
 
@@ -133,7 +133,8 @@ bool Script::Compile(const char* name, const char* source)
 
     if (tcc_relocate(_tccState, TCC_RELOCATE_AUTO) != 0)
     {
-        StrifeLog("Failed to relocate tcc code: %s\n");
+        StrifeLog("Failed to relocate tcc code\n");
+        return false;
     }
 
     return true;

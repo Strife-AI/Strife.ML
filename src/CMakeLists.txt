@@ -26,13 +26,15 @@ if (MSVC)
 
     add_custom_command(TARGET Strife.ML
         POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${CMAKE_CURRENT_SOURCE_DIR}/../tinycc/win32/libtcc.dll
-        $<TARGET_FILE_DIR:Strife.ML>)
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../tinycc/win32/libtcc.dll $<TARGET_FILE_DIR:Strife.ML>)
 else()
     target_link_directories(Strife.ML PUBLIC ../tinycc)
     target_link_libraries(Strife.ML PUBLIC libtcc.a)
 endif()
+
+add_custom_command(TARGET Strife.ML
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../src/TorchApi.h ${CMAKE_BINARY_DIR}/tcc/include)
 
 target_link_libraries(Strife.ML PUBLIC torch Microsoft.GSL::GSL Strife.Common)
 target_include_directories(Strife.ML PUBLIC ../tinycc)

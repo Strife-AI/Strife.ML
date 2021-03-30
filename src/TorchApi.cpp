@@ -21,8 +21,7 @@ NetworkState* GetNetwork() { return g_scriptState.network; }
 
 #define NOT_NULL(name_) { if (name_ == nullptr) throw StrifeML::StrifeException("Parameter " + std::string(#name_) + " is NULL"); }
 
-
-Conv2D conv2d_add(const char* name, int a, int b, int c)
+Conv2D conv2d_new(const char* name, int a, int b, int c)
 {
     NOT_NULL(name);
 
@@ -52,6 +51,12 @@ Conv2D conv2d_get(const char* name)
     tensorInput->tensor = torch::torchName_(tensorInput->tensor);                 \
 }
 
+#define TENSOR_MEMBER_FUNCTION(name_, memberName_) void name_(Tensor input) \
+{                                                                                  \
+    auto tensorInput = g_scriptState.tensors.Get(input);                           \
+    tensorInput->tensor = tensorInput->tensor.memberName_();                 \
+}
+
 CONV2D_MEMBER_FUNCTION(conv2d_forward, forward)
 
 Tensor tensor_new()
@@ -74,7 +79,9 @@ Tensor tensor_new_4d(int x, int y, int z, int w)
 
 TENSOR_FUNCTION(relu, relu)
 
-LinearLayer linearlayer_add(const char* name, int totalFeatures, int hiddenNodesCount)
+TENSOR_MEMBER_FUNCTION(tensor_squeeze, squeeze)
+
+LinearLayer linearlayer_new(const char* name, int totalFeatures, int hiddenNodesCount)
 {
     auto network = GetNetwork();
     auto [obj, handle] = network->linearLayer.Create(name);
@@ -122,25 +129,92 @@ T GetProperty(StrifeML::ObjectSerializer& serializer, const char* name)
     }
 }
 
-Tensor pack_float_array(const char* attributeNames[], int count)
+Tensor pack_into_tensor(void (*selector)(Object input, Value output))
 {
-    const int maxAttributes = 100;
-    NOT_NULL(attributeNames);
-    if (count < 0 || count > maxAttributes) throw StrifeML::StrifeException("Invalid value for count: %d", count);
+    auto& scriptState = g_scriptState;
+    auto& valueStack = scriptState.valueStack;
 
-    float data[maxAttributes];
+    int valueHandle = valueStack.Push();
+    Value value;
+    value.handle = valueHandle;
 
-    auto [obj, handle] = g_scriptState.tensors.Create(StrifeML::PackIntoTensor(g_scriptState.network->input, [=, &data](const SerializedInput& input) -> gsl::span<float>
+    Object input;
+    input.handle = valueStack.Push();
+
+    auto inputObject = std::make_unique<ObjectImpl>();
+    valueStack.GetById(input.handle).value = std::move(inputObject);
+
+    auto doSelectorCall = [&](const SerializedInput& serializedInput) -> ValueImpl&
     {
-        for (int i = 0; i < count; ++i)
+        selector(input, value);
+        return valueStack.GetById(valueHandle);
+    };
+
+    auto& tensorPackType = doSelectorCall(scriptState.network->input[0][0]).value;
+
+    auto packedResult = std::visit([&](auto&& arg) -> torch::Tensor {
+        using T = std::decay_t<decltype(arg)>;
+        if constexpr (std::is_same_v<T, float>)
         {
-            data[i] = GetProperty<float>(const_cast<SerializedInput&>(input).serializer, attributeNames[i]);
+            return StrifeML::PackIntoTensor(scriptState.network->input, [=](auto& input) { return std::get<float>(doSelectorCall(input).value); });
         }
+        else if constexpr (std::is_same_v<T, std::vector<float>>)
+        {
+            return StrifeML::PackIntoTensor(scriptState.network->input, [&](auto& input)
+            {
+                auto& result = std::get<std::vector<float>>(doSelectorCall(input).value);
+                return gsl::span<float>(result.data(), result.size());
+            });
+        }
+        else
+        {
+            throw StrifeML::StrifeException("Unhandled pack_into_tensor visitor");
+        }
+    }, tensorPackType);
 
-        return gsl::span<float>(data, count);
-    }));
+    valueStack.Pop();
+    valueStack.Pop();
 
+    auto [obj, handle] = scriptState.tensors.Create(packedResult);
     return handle;
+}
+
+float object_get_float(Object object, const char* name)
+{
+    // TODO
+    return 0;
+}
+
+ValueImpl& GetValue(Value value)
+{
+    return g_scriptState.valueStack.GetById(value.handle);
+}
+
+void value_set_float(Value value, float v)
+{
+    GetValue(value).value = v;
+}
+
+void value_set_float_array(Value value, float* array, int count)
+{
+    auto& valueImpl = GetValue(value);
+
+    // If already a vector of floats, just resize and copy
+    if (auto values = std::get_if<std::vector<float>>(&valueImpl.value))
+    {
+        values->resize(count);
+        std::copy(array, array + count, values->data());
+    }
+    else
+    {
+        valueImpl.value = std::vector<float>(array, array + count);
+    }
+}
+
+Optimizer optimizer_new_adam(const char* name, float learningRate)
+{
+    // TODO
+    return Optimizer();
 }
 
 }

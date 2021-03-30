@@ -76,14 +76,15 @@ struct ScriptNetwork : StrifeML::NeuralNetwork<TInput, TOutput, 1>
     Scripting::NetworkState networkState { this };
 };
 
-template<typename TInput, typename TOutput>
-struct ScriptTrainer : StrifeML::Trainer<ScriptNetwork<TInput, TOutput>>
+template<typename TScriptNetwork>
+struct ScriptTrainer : StrifeML::Trainer<TScriptNetwork>
 {
+    using TInput = typename TScriptNetwork::InputType;
+    using TOutput = typename TScriptNetwork::OutputType;
     using SampleType = StrifeML::Sample<TInput, TOutput>;
-    using NetworkType = ScriptNetwork<TInput, TOutput>;
 
-    ScriptTrainer(ScriptSource* source)
-        : StrifeML::Trainer<ScriptNetwork<TInput, TOutput>>(1, 1),
+    ScriptTrainer(ScriptSource* source, int batchSize, float trainsPerSecond)
+        : StrifeML::Trainer<TScriptNetwork>(batchSize, trainsPerSecond),
           source(source)
     {
         this->minSamplesBeforeStartingTraining = -1;
@@ -99,7 +100,7 @@ struct ScriptTrainer : StrifeML::Trainer<ScriptNetwork<TInput, TOutput>>
             this->network->BindCallbacks(script, false);
         }
 
-        StrifeML::Trainer<NetworkType>::RunBatch();
+        StrifeML::Trainer<TScriptNetwork>::RunBatch();
     }
 
     bool TryCreateBatch(Grid<SampleType> outBatch) override
@@ -107,7 +108,7 @@ struct ScriptTrainer : StrifeML::Trainer<ScriptNetwork<TInput, TOutput>>
         return true;
     }
 
-    void OnCreateNewNetwork(std::shared_ptr<NetworkType> newNetwork)
+    void OnCreateNewNetwork(std::shared_ptr<TScriptNetwork> newNetwork)
     {
         newNetwork->BindCallbacks(script, true);
     }
