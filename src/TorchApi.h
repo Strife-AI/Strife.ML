@@ -18,6 +18,10 @@ typedef struct TrainResult { int handle; } TrainResult;
 Tensor tensor_new();
 Tensor tensor_new_4d(int x, int y, int z, int w);
 Tensor tensor_clone(Tensor input);
+void tensor_squeeze(Tensor tensor);
+void tensor_backward(Tensor tensor);
+float tensor_item_float(Tensor tensor);
+void tensor_print(Tensor tensor);
 
 Conv2D conv2d_new(const char* name, int a, int b, int c);
 Conv2D conv2d_get(const char* name);
@@ -29,9 +33,6 @@ void linearlayer_forward(LinearLayer layer, Tensor input);
 
 void relu(Tensor input);
 void smooth_l1_loss(Tensor input, Tensor target, Tensor result);
-void tensor_squeeze(Tensor tensor);
-void tensor_backward(Tensor tensor);
-float tensor_item_float(Tensor tensor);
 
 Tensor pack_into_tensor(void (*selector)(Object input, Value output));
 

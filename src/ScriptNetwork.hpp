@@ -103,11 +103,6 @@ struct ScriptTrainer : StrifeML::Trainer<TScriptNetwork>
         StrifeML::Trainer<TScriptNetwork>::RunBatch();
     }
 
-    bool TryCreateBatch(Grid<SampleType> outBatch) override
-    {
-        return true;
-    }
-
     void OnCreateNewNetwork(std::shared_ptr<TScriptNetwork> newNetwork)
     {
         newNetwork->BindCallbacks(script, true);

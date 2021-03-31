@@ -9,10 +9,17 @@ void RegisterScriptFunctions()
     SCRIPT_REGISTER(tensor_new_4d);
     SCRIPT_REGISTER(tensor_clone);
     SCRIPT_REGISTER(tensor_squeeze);
+    SCRIPT_REGISTER(tensor_backward);
+    SCRIPT_REGISTER(tensor_print);
 
     SCRIPT_REGISTER(conv2d_new)
     SCRIPT_REGISTER(conv2d_get)
     SCRIPT_REGISTER(conv2d_forward);
+
+    SCRIPT_REGISTER(optimizer_new_adam);
+    SCRIPT_REGISTER(optimizer_get);
+    SCRIPT_REGISTER(optimizer_zero_grad);
+    SCRIPT_REGISTER(optimizer_step);
 
     SCRIPT_REGISTER(relu);
 
@@ -22,10 +29,10 @@ void RegisterScriptFunctions()
 
     SCRIPT_REGISTER(object_get_float);
 
-    SCRIPT_REGISTER(optimizer_new_adam);
-
     SCRIPT_REGISTER(value_set_float);
     SCRIPT_REGISTER(value_set_float_array);
 
     SCRIPT_REGISTER(pack_into_tensor);
+
+    SCRIPT_REGISTER(smooth_l1_loss);
 };

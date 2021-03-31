@@ -62,8 +62,6 @@ void* Script::GetSymbolOrNull(const char* name)
     if (_tccState == nullptr) return nullptr;
     auto result = tcc_get_symbol(_tccState, name);
 
-    StrifeLog("For function %s got %p\n", name, result);
-
     return result;
 }
 
@@ -113,7 +111,7 @@ bool Script::Compile(const char* name, const char* source)
     }
 
     tcc_set_error_func(_tccState, (void*)name, LogCompilerError);
-    tcc_set_options(_tccState, "-Btcc");
+    tcc_set_options(_tccState, "-Btcc -g");
     tcc_set_output_type(_tccState, TCC_OUTPUT_MEMORY);
     tcc_add_sysinclude_path(_tccState, "tcc/include");
 

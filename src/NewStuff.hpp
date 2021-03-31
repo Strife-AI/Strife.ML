@@ -134,6 +134,8 @@ namespace StrifeML
         template<typename T>
         ObjectSerializer& Add(T& value, const char* name)
         {
+            static_assert(!std::is_enum_v<T>, "Use AddEnum for enumerations instead of Add");
+
             if (schema != nullptr)
             {
                 schema->template AddProperty<T>(name, (int)bytes.size());
@@ -142,6 +144,9 @@ namespace StrifeML
             Serializer<T>::Serialize(value, *this);
             return *this;
         }
+
+        template<typename T>
+        ObjectSerializer& AddEnum(T& value, const char* name);
 
         void AddBytes(unsigned char* data, int size);
 
@@ -710,11 +715,31 @@ namespace StrifeML
     }
 
     template<typename T>
-    struct Serializer<T, std::enable_if_t<std::is_arithmetic_v<T> || std::is_enum_v<T>>>
+    struct Serializer<T, std::enable_if_t<std::is_arithmetic_v<T>>>
     {
         static void Serialize(T& value, ObjectSerializer& serializer)
         {
             serializer.AddBytes(reinterpret_cast<unsigned char*>(&value), sizeof(value));
         }
     };
+
+    template<typename T>
+    ObjectSerializer& ObjectSerializer::AddEnum(T& value, const char* name)
+    {
+        int serializedValue = (int)value;
+
+        if (schema != nullptr)
+        {
+            schema->template AddProperty<int>(name, (int)bytes.size());
+        }
+
+        Serializer<int>::Serialize(serializedValue, *this);
+
+        if (isReading)
+        {
+            value = (T)serializedValue;
+        }
+
+        return *this;
+    }
 }

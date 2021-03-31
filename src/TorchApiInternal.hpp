@@ -35,6 +35,11 @@ namespace Scripting
         torch::nn::Conv2d conv2d{ nullptr };
     };
 
+    struct OptimizerImpl
+    {
+        std::shared_ptr<torch::optim::Optimizer> optimizer{ nullptr };
+    };
+
     struct LinearLayerImpl
     {
         torch::nn::Linear linear{ nullptr };
@@ -158,6 +163,7 @@ namespace Scripting
 
         StrifeML::INeuralNetwork* network;
         NamedHandleMap<Conv2D, Conv2DImpl> conv2d;
+        NamedHandleMap<Optimizer, OptimizerImpl> optimizer;
         NamedHandleMap<LinearLayer, LinearLayerImpl> linearLayer;
 
         Grid<SerializedInput> input;
