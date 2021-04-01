@@ -145,7 +145,8 @@ namespace Scripting
             float,
             double,
             std::vector<float>,
-            std::unique_ptr<ObjectImpl>> value;
+            std::unique_ptr<ObjectImpl>,
+            std::monostate> value = std::monostate();
     };
 
     struct ObjectImpl
@@ -203,4 +204,6 @@ namespace Scripting
     };
 
     ScriptingState* GetScriptingState();
+    Value PushValue();
+    ValueImpl& GetValue(Value value);
 }

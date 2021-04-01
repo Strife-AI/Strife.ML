@@ -11,6 +11,7 @@ void RegisterScriptFunctions()
     SCRIPT_REGISTER(tensor_squeeze);
     SCRIPT_REGISTER(tensor_backward);
     SCRIPT_REGISTER(tensor_print);
+    SCRIPT_REGISTER(tensor_item_float);
 
     SCRIPT_REGISTER(conv2d_new)
     SCRIPT_REGISTER(conv2d_get)

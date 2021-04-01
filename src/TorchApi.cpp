@@ -18,6 +18,18 @@ ScriptingState* GetScriptingState()
     return &g_scriptState;
 }
 
+Value PushValue()
+{
+    Value value;
+    value.handle = g_scriptState.valueStack.Push();
+    return value;
+}
+
+ValueImpl& GetValue(Value value)
+{
+    return g_scriptState.valueStack.GetById(value.handle);
+}
+
 NetworkState* GetNetwork() { return g_scriptState.network; }
 
 #define NOT_NULL(name_) { if (name_ == nullptr) throw StrifeML::StrifeException("Parameter " + std::string(#name_) + " is NULL"); }
@@ -52,7 +64,8 @@ void optimizer_zero_grad(Optimizer optimizer)
 
 void optimizer_step(Optimizer optimizer)
 {
-    GetNetwork()->optimizer.Get(optimizer)->optimizer->step();
+    auto optimizerImpl = GetNetwork()->optimizer.Get(optimizer)->optimizer.get();
+    auto result = optimizerImpl->step();
 }
 
 Conv2D conv2d_get(const char* name)
@@ -96,7 +109,7 @@ void tensor_print(Tensor tensor)
 
 Tensor tensor_clone(Tensor input)
 {
-    auto [obj, handle] = g_scriptState.tensors.Create(g_scriptState.tensors.Get(input)->tensor);
+    auto [obj, handle] = g_scriptState.tensors.Create(g_scriptState.tensors.Get(input)->tensor.clone());
     return handle;
 }
 
@@ -106,13 +119,19 @@ Tensor tensor_new_4d(int x, int y, int z, int w)
     return handle;
 }
 
+float tensor_item_float(Tensor tensor)
+{
+    return g_scriptState.tensors.Get(tensor)->tensor.item<float>();
+}
+
 TENSOR_FUNCTION(relu, relu)
 
 TENSOR_MEMBER_FUNCTION(tensor_squeeze, squeeze)
 
 void tensor_backward(Tensor tensor)
 {
-    g_scriptState.tensors.Get(tensor)->tensor.backward();
+    auto& tensorImpl = g_scriptState.tensors.Get(tensor)->tensor;
+    tensorImpl.backward();
 }
 
 LinearLayer linearlayer_new(const char* name, int totalFeatures, int hiddenNodesCount)

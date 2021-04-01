@@ -38,7 +38,17 @@ struct ScriptNetwork : StrifeML::NeuralNetwork<TInput, TOutput, 1>
 
         try
         {
-            DoScriptCall([=] { train(); });
+            DoScriptCall([&]
+            {
+                Scripting::Value loss = Scripting::PushValue();
+                train(loss);
+                auto& lossImpl = Scripting::GetValue(loss);
+
+                if (auto lossFloat = std::get_if<float>(&lossImpl.value))
+                {
+                    outResult.loss = *lossFloat;
+                }
+            });
         }
         catch (...)
         {
@@ -72,7 +82,7 @@ struct ScriptNetwork : StrifeML::NeuralNetwork<TInput, TOutput, 1>
     }
 
     ScriptFunction<void()> setup { "Setup" };
-    ScriptFunction<Scripting::Tensor()> train { "Train" };
+    ScriptFunction<void(Scripting::Value)> train { "Train" };
     Scripting::NetworkState networkState { this };
 };
 
