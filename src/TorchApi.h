@@ -21,7 +21,9 @@ Tensor tensor_clone(Tensor input);
 void tensor_squeeze(Tensor tensor);
 void tensor_backward(Tensor tensor);
 float tensor_item_float(Tensor tensor);
+long long tensor_item_int64(Tensor tensor);
 void tensor_print(Tensor tensor);
+void tensor_max(Tensor input, int dim, Tensor outValue, Tensor outIndex);
 
 Conv2D conv2d_new(const char* name, int a, int b, int c);
 Conv2D conv2d_get(const char* name);
@@ -38,6 +40,7 @@ Tensor pack_into_tensor(void (*selector)(Object input, Value output));
 
 void value_set_float(Value value, float v);
 void value_set_float_array(Value value, float* array, int count);
+void value_set_int32(Value value, int v);
 
 float object_get_float(Object input, const char* name);
 

@@ -124,6 +124,19 @@ float tensor_item_float(Tensor tensor)
     return g_scriptState.tensors.Get(tensor)->tensor.item<float>();
 }
 
+long long tensor_item_int64(Tensor tensor)
+{
+    return *g_scriptState.tensors.Get(tensor)->tensor.data_ptr<int64_t>();
+}
+
+void tensor_max(Tensor input, int dim, Tensor outValue, Tensor outIndex)
+{
+    auto& tensors = g_scriptState.tensors;
+    auto result = torch::max(tensors.Get(input)->tensor, dim);
+    tensors.Get(outValue)->tensor = std::get<0>(result);
+    tensors.Get(outIndex)->tensor = std::get<1>(result);
+}
+
 TENSOR_FUNCTION(relu, relu)
 
 TENSOR_MEMBER_FUNCTION(tensor_squeeze, squeeze)
@@ -284,6 +297,11 @@ float object_get_float(Object object, const char* name)
 }
 
 void value_set_float(Value value, float v)
+{
+    GetValueFromValueStack(value).value = v;
+}
+
+void value_set_int32(Value value, int v)
 {
     GetValueFromValueStack(value).value = v;
 }

@@ -12,6 +12,8 @@ void RegisterScriptFunctions()
     SCRIPT_REGISTER(tensor_backward);
     SCRIPT_REGISTER(tensor_print);
     SCRIPT_REGISTER(tensor_item_float);
+    SCRIPT_REGISTER(tensor_item_int64);
+    SCRIPT_REGISTER(tensor_max);
 
     SCRIPT_REGISTER(conv2d_new)
     SCRIPT_REGISTER(conv2d_get)
@@ -32,6 +34,7 @@ void RegisterScriptFunctions()
 
     SCRIPT_REGISTER(value_set_float);
     SCRIPT_REGISTER(value_set_float_array);
+    SCRIPT_REGISTER(value_set_int32);
 
     SCRIPT_REGISTER(pack_into_tensor);
 
