@@ -2,6 +2,8 @@
 #include <memory>
 #include <random>
 #include <unordered_set>
+#include <unordered_map>
+#include <sstream>
 #include <gsl/span>
 #include <cstdarg>
 #include <cassert>
