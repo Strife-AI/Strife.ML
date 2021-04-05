@@ -24,8 +24,8 @@ else()
         CONFIGURE_COMMAND "./configure"
         BUILD_IN_SOURCE 1
         BUILD_COMMAND ${MAKE}
-        INSTALL_COMMAND mkdir -p ${CMAKE_BINARY_DIR}/tcc
-            && cp ${CMAKE_CURRENT_SOURCE_DIR}/tinycc/libtcc1.a ${CMAKE_BINARY_DIR}/tcc
+        INSTALL_COMMAND mkdir -p ${CMAKE_BINARY_DIR}/tcc/lib
+            && cp ${CMAKE_CURRENT_SOURCE_DIR}/tinycc/libtcc1.a ${CMAKE_BINARY_DIR}/tcc/lib/libtcc1.a
             && cp -r ${CMAKE_CURRENT_SOURCE_DIR}/tinycc/include ${CMAKE_BINARY_DIR}/tcc)
 endif()
 

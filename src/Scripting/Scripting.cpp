@@ -111,7 +111,12 @@ bool Script::Compile(const char* name, const char* source)
     }
 
     tcc_set_error_func(_tccState, (void*)name, LogCompilerError);
+#if __linux
+    tcc_set_options(_tccState, "-Btcc/lib -g");
+#else
     tcc_set_options(_tccState, "-Btcc -g");
+#endif
+
     tcc_set_output_type(_tccState, TCC_OUTPUT_MEMORY);
     tcc_add_sysinclude_path(_tccState, "tcc/include");
 
