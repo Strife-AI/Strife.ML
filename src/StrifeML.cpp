@@ -1,4 +1,4 @@
-#include "NewStuff.hpp"
+#include "StrifeML.hpp"
 #include "torch/nn/module.h"
 #include "torch/serialize.h"
 

@@ -1,6 +1,6 @@
 #include "TorchApi.h"
 #include "TorchApiInternal.hpp"
-#include "NewStuff.hpp"
+#include "StrifeML.hpp"
 #include "TensorPacking.hpp"
 
 namespace Scripting

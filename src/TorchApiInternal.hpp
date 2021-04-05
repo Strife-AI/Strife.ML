@@ -3,7 +3,7 @@
 #include <variant>
 
 #include "torch/torch.h"
-#include "NewStuff.hpp"
+#include "StrifeML.hpp"
 
 namespace Scripting
 {
