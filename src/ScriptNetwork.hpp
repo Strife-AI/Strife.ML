@@ -124,6 +124,7 @@ struct ScriptNetwork : StrifeML::NeuralNetwork<TInput, TOutput, 1>
     ScriptFunction<void(Scripting::Value outLoss)> train { "Train" };
     ScriptFunction<void(Scripting::Value outAction)> makeDecision { "MakeDecision" };
     Scripting::NetworkState networkState { this };
+    bool hasScriptError = false;
 };
 
 template<typename TScriptNetwork>
@@ -142,15 +143,13 @@ struct ScriptTrainer : StrifeML::Trainer<TScriptNetwork>
         script->TryCompile();   // TODO error checking
     }
 
-    void RunBatch() override
+    void OnRunBatch() override
     {
         if (script->TryRecompileIfNewer())
         {
             StrifeLog("Successfully recompiled\n");
             this->network->BindCallbacks(script, false);
         }
-
-        StrifeML::Trainer<TScriptNetwork>::RunBatch();
     }
 
     void OnCreateNewNetwork(std::shared_ptr<TScriptNetwork> newNetwork)

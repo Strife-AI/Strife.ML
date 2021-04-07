@@ -12,6 +12,7 @@ namespace StrifeML
     struct TrainingBatchResult
     {
         float loss = 0;
+        bool isSuccess = true;
     };
 
     template<typename TNeuralNetwork>
@@ -22,28 +23,15 @@ namespace StrifeML
         using NetworkType = TNeuralNetwork;
         using SampleType = Sample<InputType, OutputType>;
 
-        RunTrainingBatchWorkItem(
-            std::shared_ptr<TNeuralNetwork> network_,
-            std::shared_ptr<Trainer<TNeuralNetwork>> trainer_,
-            MlUtil::SharedArray<SampleType> samples_,
-            int batchSize_,
-            int sequenceLength_)
-            : network(network_),
-              samples(samples_),
-              trainer(trainer_),
-              batchSize(batchSize_),
-              sequenceLength(sequenceLength_)
+        RunTrainingBatchWorkItem(std::shared_ptr<Trainer<TNeuralNetwork>> trainer)
+            : trainer(trainer)
         {
 
         }
 
         void Execute() override;
 
-        std::shared_ptr<TNeuralNetwork> network;
-        MlUtil::SharedArray<SampleType> samples;
         std::shared_ptr<Trainer<TNeuralNetwork>> trainer;
-        int batchSize;
-        int sequenceLength;
     };
 
     template<typename TNeuralNetwork>
@@ -58,9 +46,9 @@ namespace StrifeML
 
         Trainer(int batchSize_, float trainsPerSecond_);
 
-        void AddSample(SampleType& sample);
+        void StartRunning();
 
-        virtual void RunBatch();
+        void AddSample(SampleType& sample);
 
         virtual bool TryCreateBatch(Grid <SampleType> outBatch);
 
@@ -75,6 +63,7 @@ namespace StrifeML
         }
 
         virtual void OnCreateNewNetwork(std::shared_ptr <NetworkType> newNetwork) { }
+        virtual void OnRunBatch() { }
 
         SpinLock sampleLock;
         RandomNumberGenerator rng;
@@ -113,30 +102,6 @@ namespace StrifeML
         if (!isTraining && totalSamples >= minSamplesBeforeStartingTraining)
         {
             isTraining = true;
-            RunBatch();
-        }
-    }
-
-    template<typename TNeuralNetwork>
-    void Trainer<TNeuralNetwork>::RunBatch()
-    {
-        sampleLock.Lock();
-        bool successful = TryCreateBatch(Grid<SampleType>(batchSize, sequenceLength, trainingInput.data.get()));
-        sampleLock.Unlock();
-
-        if (successful)
-        {
-            auto taskScheduler = TaskScheduler::GetInstance();
-
-            float runTime = trainTask != nullptr
-                            ? trainTask->startTime + 1.0f / trainsPerSecond
-                            : 0;
-
-            // TODO: can save the memory allocation by reusing the task
-            trainTask = std::make_shared<ScheduledTask>();
-            trainTask->workItem = std::make_shared<RunTrainingBatchWorkItem<TNeuralNetwork>>(network, this->shared_from_this(), trainingInput, batchSize, sequenceLength);
-            trainTask->runTime = runTime;
-            taskScheduler->Start(trainTask);
         }
     }
 
@@ -159,22 +124,40 @@ namespace StrifeML
     void Trainer<TNeuralNetwork>::NotifyTrainingComplete(std::stringstream& serializedNetwork, const TrainingBatchResult& result)
     {
         auto newNetwork = networkContext->SetNewNetwork(serializedNetwork);
-
         OnTrainingComplete(result);
+    }
 
-        if (isTraining)
-        {
-            RunBatch();
-        }
+    template<typename TNeuralNetwork>
+    void Trainer<TNeuralNetwork>::StartRunning()
+    {
+        auto taskScheduler = TaskScheduler::GetInstance();
+        trainTask = std::make_shared<ScheduledTask>();
+        trainTask->workItem = std::make_shared<RunTrainingBatchWorkItem<TNeuralNetwork>>(this->shared_from_this());
+        trainTask->recurringTime = 1.0f / trainsPerSecond;
+        trainTask->runTime = 0;
+        taskScheduler->Start(trainTask);
     }
 
     template<typename TNeuralNetwork>
     void RunTrainingBatchWorkItem<TNeuralNetwork>::Execute()
     {
-        Grid<const SampleType> input(batchSize, sequenceLength, samples.data.get());
-        network->TrainBatch(input, _result);
-        std::stringstream stream;
-        TorchSave(network->module, stream);
-        trainer->NotifyTrainingComplete(stream, _result);
+        if (!trainer->isTraining)
+        {
+            return;
+        }
+
+        trainer->sampleLock.Lock();
+        bool successful = trainer->TryCreateBatch(Grid<SampleType>(trainer->batchSize, trainer->sequenceLength, trainer->trainingInput.data.get()));
+        trainer->sampleLock.Unlock();
+
+        if (successful)
+        {
+            trainer->OnRunBatch();
+            Grid<const SampleType> input(trainer->batchSize, trainer->sequenceLength, trainer->trainingInput.data.get());
+            trainer->network->TrainBatch(input, _result);
+            std::stringstream stream;
+            TorchSave(trainer->network->module, stream);
+            trainer->NotifyTrainingComplete(stream, _result);
+        }
     }
 }

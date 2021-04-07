@@ -20,6 +20,8 @@ namespace StrifeML
 
         }
 
+        virtual ~NetworkContext() = default;
+
         std::shared_ptr <TNeuralNetwork> SetNewNetwork(std::stringstream& stream)
         {
             newNetworkLock.Lock();
@@ -46,7 +48,6 @@ namespace StrifeML
 
         std::shared_ptr <TNeuralNetwork> newNetwork;
         SpinLock newNetworkLock;
-
-        virtual ~NetworkContext() = default;
+        bool isEnabled = true;
     };
 }
