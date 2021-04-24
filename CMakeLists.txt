@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
 include (ExternalProject)
+include(FetchContent)
 
 project(ML VERSION 1 LANGUAGES C CXX)
 
@@ -29,6 +30,17 @@ else()
             && cp -r ${CMAKE_CURRENT_SOURCE_DIR}/tinycc/include ${CMAKE_BINARY_DIR}/tcc)
 endif()
 
+FetchContent_Declare(
+        torch-test
+        PREFIX "torch-test"
+        URL https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.8.1%2Bcpu.zip
+        CONFIGURE_COMMAND ""
+        BUILD_COMMAND ""
+        INSTALL_COMMAND ""
+)
 
+FetchContent_MakeAvailable(torch-test)
+set(CMAKE_PREFIX_PATH "${torch-test_SOURCE_DIR}/share/cmake/Torch/")
+find_package(Torch)
 add_subdirectory(Strife.Common)
 add_subdirectory(src)
