@@ -13,12 +13,16 @@ if (MSVC)
             CONFIGURE_COMMAND ""
             BUILD_IN_SOURCE 1
             BUILD_COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tinycc/win32/build-tcc.bat -c cl
-            INSTALL_COMMAND COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/tcc
-                && ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/tinycc/win32/include $<TARGET_FILE_DIR:Strife.ML>/tcc/include
-                && ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/src/TorchApi.h $<TARGET_FILE_DIR:Strife.ML>/tcc/include
-                && ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:Strife.ML>/tcc/lib
-                && ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/tinycc/win32/lib/libtcc1-64.a $<TARGET_FILE_DIR:Strife.ML>/tcc/lib
-                && ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/tinycc/win32/lib/libtcc1-32.a $<TARGET_FILE_DIR:Strife.ML>/tcc/lib)
+            INSTALL_COMMAND "")
+
+    add_custom_command(TARGET tcc
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/tcc
+            && ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/tinycc/win32/include $<TARGET_FILE_DIR:Strife.ML>/tcc/include
+            && ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/src/TorchApi.h $<TARGET_FILE_DIR:Strife.ML>/tcc/include
+            && ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:Strife.ML>/tcc/lib
+            && ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/tinycc/win32/lib/libtcc1-64.a $<TARGET_FILE_DIR:Strife.ML>/tcc/lib
+            && ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/tinycc/win32/lib/libtcc1-32.a $<TARGET_FILE_DIR:Strife.ML>/tcc/lib)
 else()
     ExternalProject_Add(tcc
         PREFIX tinycc
