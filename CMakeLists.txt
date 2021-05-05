@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.2.02 FATAL_ERROR)
 
 include (ExternalProject)
 include(FetchContent)
@@ -6,6 +6,7 @@ include(FetchContent)
 project(ML VERSION 1 LANGUAGES C CXX)
 
 if (MSVC)
+    message("${CMAKE_CURRENT_SOURCE_DIR}/tinycc/win32")
     ExternalProject_Add(tcc
             PREFIX tinycc
             SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tinycc/win32
@@ -40,40 +41,38 @@ if (MSVC)
 	endif()
 
 	if (${BUILD_TYPE} STREQUAL "Debug")
-        message("Downloading Debug LibTorch")
-        FetchContent_Declare(
-            torch-test
-            PREFIX "torch-test"
-            URL https://download.pytorch.org/libtorch/cu102/libtorch-win-shared-with-deps-debug-1.8.1%2Bcu102.zip
-            CONFIGURE_COMMAND ""
-            BUILD_COMMAND ""
-            INSTALL_COMMAND ""
-        )
+        set(TorchCpuCache ${CMAKE_SOURCE_DIR}/.torch/cpu/debug)
+        set(TorchCpuUrl https://download.pytorch.org/libtorch/cu102/libtorch-win-shared-with-deps-debug-1.8.1%2Bcu102.zip)
+
+        set(TorchCudaCache ${CMAKE_SOURCE_DIR}/.torch/cuda/debug)
+        set(TorchCudaUrl https://download.pytorch.org/libtorch/cu111/libtorch-win-shared-with-deps-debug-1.8.1%2Bcu111.zip)
 	else()
-        message("Downloading Release LibTorch")
-        FetchContent_Declare(
-            torch-test
-            PREFIX "torch-test"
-            URL https://download.pytorch.org/libtorch/cu102/libtorch-win-shared-with-deps-1.8.1%2Bcu102.zip
-            CONFIGURE_COMMAND ""
-            BUILD_COMMAND ""
-            INSTALL_COMMAND ""
-        )
+        set(TorchCpuCache ${CMAKE_SOURCE_DIR}/.torch/cpu/release)
+        set(TorchCpuUrl https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-1.8.1%2Bcpu.zip)
+
+        set(TorchCudaCache ${CMAKE_SOURCE_DIR}/.torch/cuda/release)
+        set(TorchCudaUrl https://download.pytorch.org/libtorch/cu111/libtorch-win-shared-with-deps-1.8.1%2Bcu111.zip)
 	endif()
 else()
-    message("Downloading Linux LibTorch")
-    FetchContent_Declare(
-        torch-test
-        PREFIX "torch-test"
-        URL https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.8.1%2Bcpu.zip
-        CONFIGURE_COMMAND ""
-        BUILD_COMMAND ""
-        INSTALL_COMMAND ""
-    )
+    set(TorchCpuCache ${CMAKE_SOURCE_DIR}/.torch/cpu)
+    set(TorchCpuUrl ${CMAKE_SOURCE_DIR}/.torch/cpu)
 endif()
 
+set(FETCHCONTENT_BASE_DIR ${TorchCpuCache})
+
+FetchContent_Declare(
+        torch-test
+        URL ${TorchCpuUrl}
+        CONFIGURE_COMMAND ""
+        BUILD_COMMAND ""
+        INSTALL_COMMAND "")
+
 FetchContent_MakeAvailable(torch-test)
-set(CMAKE_PREFIX_PATH "${torch-test_SOURCE_DIR}/share/cmake/Torch/")
+
+set(TORCH_DIR ${TorchCpuCache} CACHE STRING "Torch directory")
+
+list(APPEND CMAKE_PREFIX_PATH "${torch-test_SOURCE_DIR}/share/cmake/Torch/")
 find_package(Torch)
 add_subdirectory(Strife.Common)
 add_subdirectory(src)
+

@@ -37,6 +37,15 @@ add_custom_command(TARGET Strife.ML
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../src/TorchApi.h ${CMAKE_BINARY_DIR}/tcc/include)
 
+# Copy torch dlls
+if (MSVC)
+  file(GLOB TORCH_DLLS "${TORCH_DIR}/torch-test-src/lib/*.dll")
+
+  add_custom_command(TARGET Strife.ML
+                     POST_BUILD
+                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${TORCH_DLLS} $<TARGET_FILE_DIR:Strife.ML>)
+endif()
+
 target_link_libraries(Strife.ML PUBLIC Microsoft.GSL::GSL Strife.Common)
 target_include_directories(Strife.ML PUBLIC ../tinycc)
 target_include_directories(Strife.ML PUBLIC .)
