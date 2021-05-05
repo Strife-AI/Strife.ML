@@ -32,11 +32,11 @@ if (MSVC)
     add_custom_command(TARGET Strife.ML
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/tcc
-            && ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/tinycc/win32/include $<TARGET_FILE_DIR:Strife.ML>/tcc/include
-            && ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/src/TorchApi.h $<TARGET_FILE_DIR:Strife.ML>/tcc/include
+            && ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/../tinycc/win32/include $<TARGET_FILE_DIR:Strife.ML>/tcc/include
+            && ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/TorchApi.h $<TARGET_FILE_DIR:Strife.ML>/tcc/include
             && ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:Strife.ML>/tcc/lib
-            && ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/tinycc/win32/lib/libtcc1-64.a $<TARGET_FILE_DIR:Strife.ML>/tcc/lib
-            && ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/tinycc/win32/lib/libtcc1-32.a $<TARGET_FILE_DIR:Strife.ML>/tcc/lib)
+            && ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../tinycc/win32/lib/libtcc1-64.a $<TARGET_FILE_DIR:Strife.ML>/tcc/lib
+            && ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../tinycc/win32/lib/libtcc1-32.a $<TARGET_FILE_DIR:Strife.ML>/tcc/lib)
 else()
     target_link_directories(Strife.ML PUBLIC ../tinycc)
     target_link_libraries(Strife.ML PUBLIC libtcc.a)
