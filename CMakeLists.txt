@@ -30,14 +30,47 @@ else()
             && cp -r ${CMAKE_CURRENT_SOURCE_DIR}/tinycc/include ${CMAKE_BINARY_DIR}/tcc)
 endif()
 
-FetchContent_Declare(
+
+if (MSVC)
+	if (defined ${CMAKE_BUILD_TYPE})
+		message("============================ CMake_Build_Type is ${CMAKE_BUILD_TYPE}")
+		set(BUILD_TYPE ${CMAKE_BUILD_TYPE})
+	else()
+		set(BUILD_TYPE ${CMAKE_CONFIGURATION_TYPES})
+	endif()
+
+	if (${BUILD_TYPE} STREQUAL "Debug")
+        message("Downloading Debug LibTorch")
+        FetchContent_Declare(
+            torch-test
+            PREFIX "torch-test"
+            URL https://download.pytorch.org/libtorch/cu102/libtorch-win-shared-with-deps-debug-1.8.1%2Bcu102.zip
+            CONFIGURE_COMMAND ""
+            BUILD_COMMAND ""
+            INSTALL_COMMAND ""
+        )
+	else()
+        message("Downloading Release LibTorch")
+        FetchContent_Declare(
+            torch-test
+            PREFIX "torch-test"
+            URL https://download.pytorch.org/libtorch/cu102/libtorch-win-shared-with-deps-1.8.1%2Bcu102.zip
+            CONFIGURE_COMMAND ""
+            BUILD_COMMAND ""
+            INSTALL_COMMAND ""
+        )
+	endif()
+else()
+    message("Downloading Linux LibTorch")
+    FetchContent_Declare(
         torch-test
         PREFIX "torch-test"
         URL https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.8.1%2Bcpu.zip
         CONFIGURE_COMMAND ""
         BUILD_COMMAND ""
         INSTALL_COMMAND ""
-)
+    )
+endif()
 
 FetchContent_MakeAvailable(torch-test)
 set(CMAKE_PREFIX_PATH "${torch-test_SOURCE_DIR}/share/cmake/Torch/")
