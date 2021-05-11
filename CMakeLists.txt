@@ -50,7 +50,7 @@ if (MSVC)
 	endif()
 else()
     set(TorchCpuCache ${CMAKE_SOURCE_DIR}/.torch/cpu)
-    set(TorchCpuUrl ${CMAKE_SOURCE_DIR}/.torch/cpu)
+    set(TorchCpuUrl https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.8.1%2Bcpu.zip)
 endif()
 
 set(FETCHCONTENT_BASE_DIR ${TorchCpuCache})
