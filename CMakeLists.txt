@@ -26,7 +26,6 @@ else()
             && cp -r ${CMAKE_CURRENT_SOURCE_DIR}/tinycc/include ${CMAKE_BINARY_DIR}/tcc)
 endif()
 
-
 if (MSVC)
 	if (defined ${CMAKE_BUILD_TYPE})
 		message("============================ CMake_Build_Type is ${CMAKE_BUILD_TYPE}")

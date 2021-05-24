@@ -2,6 +2,8 @@
 
 #include "SampleRepository.hpp"
 
+#include <sstream>
+
 namespace StrifeML
 {
     struct ITrainer
