@@ -49,5 +49,6 @@ namespace StrifeML
         std::shared_ptr <TNeuralNetwork> newNetwork;
         SpinLock newNetworkLock;
         bool isEnabled = true;
+        int sequenceLength;
     };
 }
