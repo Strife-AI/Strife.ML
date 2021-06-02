@@ -46,7 +46,7 @@ namespace StrifeML
 
         static_assert(std::is_base_of_v < INeuralNetwork, TNeuralNetwork > , "Neural network must inherit from INeuralNetwork<>");
 
-        Trainer(int batchSize_, float trainsPerSecond_);
+        Trainer(int batchSize_, float trainsPerSecond_, int sequenceLength);
 
         void StartRunning();
 
@@ -83,11 +83,11 @@ namespace StrifeML
     };
 
     template<typename TNeuralNetwork>
-    Trainer<TNeuralNetwork>::Trainer(int batchSize_, float trainsPerSecond_)
+    Trainer<TNeuralNetwork>::Trainer(int batchSize_, float trainsPerSecond_, int sequenceLength)
         : sampleRepository(rng),
-          trainingInput(MlUtil::SharedArray<SampleType>(batchSize_ * TNeuralNetwork::SequenceLength)),
+          trainingInput(MlUtil::SharedArray<SampleType>(batchSize_ * sequenceLength)),
           batchSize(batchSize_),
-          sequenceLength(TNeuralNetwork::SequenceLength),
+          sequenceLength(sequenceLength),
           trainsPerSecond(trainsPerSecond_)
     {
 

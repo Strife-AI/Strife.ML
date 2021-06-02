@@ -9,9 +9,15 @@
 void StrifeLog(const char* format, ...);
 
 template<typename TInput, typename TOutput>
-struct ScriptNetwork : StrifeML::NeuralNetwork<TInput, TOutput, 1>
+struct ScriptNetwork : StrifeML::NeuralNetwork<TInput, TOutput>
 {
     using SampleType = StrifeML::Sample<TInput, TOutput>;
+
+    ScriptNetwork()
+        : StrifeML::NeuralNetwork<TInput, TOutput>(1)
+    {
+
+    }
 
     void MakeDecision(Grid<const TInput> input, TOutput& output) override
     {
