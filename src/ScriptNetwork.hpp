@@ -128,7 +128,7 @@ struct ScriptNetwork : StrifeML::NeuralNetwork<TInput, TOutput>
 
     ScriptFunction<void()> setup { "Setup" };
     ScriptFunction<void(Scripting::Value outLoss)> train { "Train" };
-    ScriptFunction<void(Scripting::Value outAction)> makeDecision { "StartMakingDecision" };
+    ScriptFunction<void(Scripting::Value outAction)> makeDecision { "MakeDecision" };
     Scripting::NetworkState networkState { this };
     bool hasScriptError = false;
 };
