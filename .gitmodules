@@ -1,7 +1,3 @@
 [submodule "tinycc"]
 	path = tinycc
 	url = git://repo.or.cz/tinycc.git
-[submodule "Strife.Common"]
-	path = Strife.Common
-	url = git@github.com:Strife-AI/Strife.Common.git
-	branch = main
