@@ -70,6 +70,5 @@ set(TORCH_DIR ${TorchCpuCache} CACHE STRING "Torch directory")
 
 list(APPEND CMAKE_PREFIX_PATH "${torch-test_SOURCE_DIR}/share/cmake/Torch/")
 find_package(Torch)
-add_subdirectory(Strife.Common)
 add_subdirectory(src)
 
