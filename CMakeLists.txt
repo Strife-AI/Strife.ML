@@ -27,14 +27,14 @@ else()
 endif()
 
 if (MSVC)
-	if (defined ${CMAKE_BUILD_TYPE})
+	if (DEFINED CMAKE_BUILD_TYPE)
 		message("============================ CMake_Build_Type is ${CMAKE_BUILD_TYPE}")
 		set(BUILD_TYPE ${CMAKE_BUILD_TYPE})
 	else()
 		set(BUILD_TYPE ${CMAKE_CONFIGURATION_TYPES})
 	endif()
 
-	if (${BUILD_TYPE} STREQUAL "Debug")
+	if ("${BUILD_TYPE}" STREQUAL "Debug")
         set(TorchCpuCache ${CMAKE_SOURCE_DIR}/.torch/cpu/debug)
         set(TorchCpuUrl https://download.pytorch.org/libtorch/cu102/libtorch-win-shared-with-deps-debug-1.9.0%2Bcu102.zip)
 
