@@ -36,6 +36,7 @@ endif()
 
 set(FETCHCONTENT_BASE_DIR ${TorchCudaCache})
 
+message("============================ Downloading Torch ============================")
 FetchContent_Declare(
         torch-test
         URL ${TorchCudaUrl}

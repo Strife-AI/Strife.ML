@@ -23,6 +23,7 @@ find_package(Microsoft.GSL CONFIG REQUIRED)
 
 # Copy torch dlls
 if (MSVC)
+  message("============================ Copying Torch to Output ============================")
   file(GLOB TORCH_DLLS "${TORCH_DIR}/torch-test-src/lib/*.dll")
 
   add_custom_command(TARGET Strife.ML
