@@ -13,9 +13,10 @@ namespace StrifeML
     template<typename TNeuralNetwork>
     struct NetworkContext : INetworkContext
     {
-        NetworkContext(Decider<TNeuralNetwork>* decider_, Trainer<TNeuralNetwork>* trainer_)
+        NetworkContext(Decider<TNeuralNetwork>* decider_, Trainer<TNeuralNetwork>* trainer_, int sequenceLength)
             : decider(decider_),
-              trainer(trainer_)
+              trainer(trainer_),
+    		  sequenceLength(sequenceLength)
         {
 
         }
