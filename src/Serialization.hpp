@@ -79,7 +79,7 @@ namespace StrifeML
             Serializer<T>::Serialize(value, *this);
             return *this;
         }
-
+    	
         template<typename T>
         ObjectSerializer& AddEnum(T& value, const char* name);
 
@@ -144,6 +144,15 @@ namespace StrifeML
         }
     };
 
+	template<typename T>
+	struct Serializer<T, std::enable_if_t<std::is_base_of_v<ISerializable, T>>>
+	{
+		static void Serialize(T& value, ObjectSerializer& serializer)
+		{
+            value.Serialize(serializer);
+		}
+	};
+
     template<typename T>
     ObjectSerializer& ObjectSerializer::AddEnum(T& value, const char* name)
     {
@@ -163,4 +172,24 @@ namespace StrifeML
 
         return *this;
     }
+
+    template<typename T>
+    struct Serializer<std::vector<T>>
+    {
+        static void Serialize(std::vector<T>& value, ObjectSerializer& serializer)
+        {
+            int size = value.size();
+            Serializer<int>::Serialize(size, serializer);
+
+            if (serializer.isReading)
+            {
+                value.resize(size);
+            }
+
+            for (int i = 0; i < size; ++i)
+            {
+                Serializer<T>::Serialize(value[i], serializer);
+            }
+        }
+    };
 }

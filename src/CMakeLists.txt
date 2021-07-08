@@ -24,11 +24,13 @@ find_package(Microsoft.GSL CONFIG REQUIRED)
 # Copy torch dlls
 if (MSVC)
   message("============================ Copying Torch to Output ============================")
+  message("From Torch Dir: ${TORCH_DIR}")
+  message("To Output Dir: ${CMAKE_BINARY_DIR}/$<CONFIG>/")
   file(GLOB TORCH_DLLS "${TORCH_DIR}/torch-test-src/lib/*.dll")
 
   add_custom_command(TARGET Strife.ML
                      POST_BUILD
-                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${TORCH_DLLS} $<TARGET_FILE_DIR:Strife.ML>)
+                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${TORCH_DLLS} "${CMAKE_BINARY_DIR}/$<CONFIG>/")
 endif()
 
 target_link_libraries(Strife.ML PUBLIC Microsoft.GSL::GSL Strife.Common)
