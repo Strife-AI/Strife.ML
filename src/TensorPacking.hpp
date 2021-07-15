@@ -56,6 +56,15 @@ namespace StrifeML
         }
     };
 
+    template<typename TCell, int NumRows, int NumCols>
+    struct DimensionCalculator<FixedSizeGrid<TCell, NumRows, NumCols>>
+    {
+        static constexpr auto Dims(const FixedSizeGrid<TCell, NumRows, NumCols>& grid)
+        {
+            return Dimensions<2>(grid.Rows(), grid.Cols()).Union(DimensionCalculator<TCell>::Dims(grid[0][0]));
+        }
+    };
+
     template<typename T, std::size_t Size>
     struct DimensionCalculator<std::array<T, Size>>
     {
@@ -85,6 +94,12 @@ namespace StrifeML
     };
     template<typename TCell>
     struct GetCellType<Grid<TCell>>
+    {
+        using Type = typename GetCellType<TCell>::Type;
+    };
+
+    template<typename TCell, int NumRows, int NumCols>
+    struct GetCellType<FixedSizeGrid<TCell, NumRows, NumCols>>
     {
         using Type = typename GetCellType<TCell>::Type;
     };
@@ -186,6 +201,31 @@ namespace StrifeML
     struct TorchPacker<Grid<TCell>, TorchType>
     {
         static TorchType* Pack(const Grid<TCell>& value, TorchType* outPtr)
+        {
+            if constexpr (std::is_arithmetic_v<TCell>)
+            {
+                memcpy(outPtr, &value[0][0], value.Rows() * value.Cols() * sizeof(TCell));
+                return outPtr + value.Rows() * value.Cols();
+            }
+            else
+            {
+                for (int i = 0; i < value.Rows(); ++i)
+                {
+                    for (int j = 0; j < value.Cols(); ++j)
+                    {
+                        outPtr = TorchPacker<TCell, TorchType>::Pack(value[i][j], outPtr);
+                    }
+                }
+
+                return outPtr;
+            }
+        }
+    };
+
+    template<typename TCell, int NumRows, int NumCols, typename TorchType>
+    struct TorchPacker<FixedSizeGrid<TCell, NumRows, NumCols>, TorchType>
+    {
+        static TorchType* Pack(const FixedSizeGrid<TCell, NumRows, NumCols>& value, TorchType* outPtr)
         {
             if constexpr (std::is_arithmetic_v<TCell>)
             {
